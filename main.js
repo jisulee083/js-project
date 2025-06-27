@@ -4,8 +4,14 @@ let tabs = document.querySelectorAll(".task-tabs div");
 let taskList = [];
 let mode = 'all';
 let filterList = [];
+let underline = document.getElementById("under-line");
 
-addButton.addEventListener("click", addTask);
+addButton.addEventListener("mousedown", addTask);
+taskInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        addTask(event)
+    }
+})
 console.log(tabs);
 
 for(let i=1;i<tabs.length;i++) {
@@ -15,13 +21,15 @@ for(let i=1;i<tabs.length;i++) {
 }
 
 function addTask() {
+    if(taskInput.value === "") return alert("할일을 입력해주세요");
     let task = {
         id: randomIDGenerate(),
         taskContent: taskInput.value,
         isComplete: false,
     };
     taskList.push(task);
-    render();
+    taskInput.value = "";
+    filter();
 }
 
 function render() {
@@ -64,7 +72,7 @@ function toggleComplete(id) {
             break;
         }
     }
-    render();
+    filter();
 }
 
 function randomIDGenerate() {
@@ -80,27 +88,31 @@ function deleteTask(id) {
     }
     // taskList = taskList.filter(item => item.id != id);
     
-    render();
+    filter();
 }
 
 function filter(event) {
-    mode = event.target.id
+    if(event) {
+        mode = event.target.id
+        underline.style.left = event.target.offsetLeft + "px";
+        underline.style.width = event.target.offsetWidth + "px";
+        underline.style.top = event.target.offsetTop + (event.target.offsetHeight - 4) + "px";
+    }
+    
     filterList = [];
-    if(mode === "all") {
-        render();
-    } else if (mode === "ongoing") {
+    if (mode === "ongoing") {
         for(let i=0;i<taskList.length;i++) {
             if(taskList[i].isComplete === false) {
                 filterList.push(taskList[i]);
             }
         }
-        render();
     } else if(mode === "done") {
         for(let i=0;i<taskList.length;i++) {
             if(taskList[i].isComplete === true) {
                 filterList.push(taskList[i]);
             }
         }
-        render();
+        
     }
+    render();
 }
